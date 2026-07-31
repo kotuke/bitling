@@ -1,0 +1,67 @@
+{
+  "name": "@kotuke/bitling",
+  "version": "1.0.0",
+  "description": "Deterministic, zero-dependency pixel avatar identicons: a shared robot with a personal color sigil",
+  "keywords": [
+    "identicon",
+    "avatar",
+    "avatars",
+    "pixel-art",
+    "png",
+    "svg",
+    "deterministic",
+    "zero-dependency",
+    "hmac",
+    "robot",
+    "sigil"
+  ],
+  "homepage": "https://kotuke.github.io/bitling/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kotuke/bitling.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kotuke/bitling/issues"
+  },
+  "author": "Aleksandr Davydenko",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/avatar.d.ts",
+      "browser": "./src/browser.mjs",
+      "default": "./src/avatar.mjs"
+    },
+    "./browser": {
+      "types": "./src/avatar.d.ts",
+      "default": "./src/browser.mjs"
+    }
+  },
+  "types": "./src/avatar.d.ts",
+  "bin": {
+    "bitling": "./src/cli.mjs"
+  },
+  "files": [
+    "src",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test",
+    "benchmark": "node benchmark.mjs",
+    "collision": "node collision-check.mjs",
+    "sample": "node examples/generate-samples.mjs",
+    "preview": "node examples/contact-sheet.mjs",
+    "lint": "eslint .",
+    "docs": "node examples/build-docs.mjs"
+  },
+  "devDependencies": {
+    "eslint": "^10.8.0"
+  }
+}

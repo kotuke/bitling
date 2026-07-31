@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bitling — deterministic pixel avatar identicons</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px clamp(16px, 4vw, 56px) 72px;
+    background: #0b0d10;
+    color: #e6e8eb;
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { margin: 0 0 8px; font-size: 26px; letter-spacing: -0.02em; }
+  h2 { margin: 40px 0 4px; font-size: 18px; }
+  p { margin: 0 0 4px; color: #8b939c; max-width: 70ch; }
+  a { color: #6aa9ff; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+    background: #16191e;
+    border: 1px solid #23272e;
+    border-radius: 5px;
+    padding: 1px 5px;
+  }
+  .grid {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 14px;
+  }
+  figure {
+    margin: 0;
+    background: #14171b;
+    border: 1px solid #22262c;
+    border-radius: 10px;
+    padding: 8px;
+  }
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    image-rendering: pixelated;
+  }
+  figcaption {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #8b939c;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  footer { margin-top: 56px; color: #6d757e; font-size: 13px; }
+  .demo {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+    background: #14171b;
+    border: 1px solid #22262c;
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .demo form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .demo label { font-size: 13px; color: #8b939c; }
+  .demo input, .demo select, .demo button, .demo a.button {
+    font: inherit;
+    font-size: 14px;
+    color: #e6e8eb;
+    background: #0f1216;
+    border: 1px solid #2a2f37;
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+  .demo input { min-width: 260px; }
+  .demo button, .demo a.button { cursor: pointer; text-decoration: none; }
+  .demo button:hover, .demo a.button:hover { border-color: #3d4650; }
+  .demo .controls { flex: 1 1 320px; min-width: 280px; }
+  .demo #demo-stage {
+    width: 320px;
+    height: 320px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0f1216;
+    flex: 0 0 auto;
+  }
+  .demo #demo-stage svg { display: block; width: 100%; height: 100%; }
+  .demo #demo-meta {
+    margin-top: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    color: #8b939c;
+    word-break: break-all;
+  }
+</style>
+</head>
+<body>
+<h1>Bitling</h1>
+<p>Deterministic pixel avatars: one white robot shared by everyone and a personal
+colored sigil above it. The same <code>userId</code> and secret always produce the same
+avatar — no network, no database, no runtime dependencies.
+Source: <a href="https://github.com/kotuke/bitling">github.com/kotuke/bitling</a>.</p>
+<h2>Try it</h2>
+<p>The generator runs entirely in your browser with a public demo secret — nothing
+you type leaves this page.</p>
+<div class="demo">
+  <div id="demo-stage"></div>
+  <div class="controls">
+    <form id="demo-form">
+      <label for="demo-id">Identifier</label>
+      <input id="demo-id" type="text" autocomplete="off" spellcheck="false" placeholder="user-123">
+      <button type="button" id="demo-random">Random</button>
+      <a class="button" id="demo-download" hidden>Download SVG</a>
+    </form>
+    <div id="demo-meta"></div>
+  </div>
+</div>
+
+<h2>Gallery</h2>
+<p>Every avatar below is generated from <code>demo-NNN</code> with a public demo secret,
+so the gallery can be rebuilt byte for byte with <code>npm run docs</code>.</p>
+
+<div class="grid">
+      <figure>
+        <img src="gallery/demo-001.png" alt="avatar for demo-001" width="256" height="256" loading="lazy">
+        <figcaption>demo-001</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-002.png" alt="avatar for demo-002" width="256" height="256" loading="lazy">
+        <figcaption>demo-002</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-003.png" alt="avatar for demo-003" width="256" height="256" loading="lazy">
+        <figcaption>demo-003</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-004.png" alt="avatar for demo-004" width="256" height="256" loading="lazy">
+        <figcaption>demo-004</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-005.png" alt="avatar for demo-005" width="256" height="256" loading="lazy">
+        <figcaption>demo-005</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-006.png" alt="avatar for demo-006" width="256" height="256" loading="lazy">
+        <figcaption>demo-006</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-007.png" alt="avatar for demo-007" width="256" height="256" loading="lazy">
+        <figcaption>demo-007</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-008.png" alt="avatar for demo-008" width="256" height="256" loading="lazy">
+        <figcaption>demo-008</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-009.png" alt="avatar for demo-009" width="256" height="256" loading="lazy">
+        <figcaption>demo-009</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-010.png" alt="avatar for demo-010" width="256" height="256" loading="lazy">
+        <figcaption>demo-010</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-011.png" alt="avatar for demo-011" width="256" height="256" loading="lazy">
+        <figcaption>demo-011</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-012.png" alt="avatar for demo-012" width="256" height="256" loading="lazy">
+        <figcaption>demo-012</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-013.png" alt="avatar for demo-013" width="256" height="256" loading="lazy">
+        <figcaption>demo-013</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-014.png" alt="avatar for demo-014" width="256" height="256" loading="lazy">
+        <figcaption>demo-014</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-015.png" alt="avatar for demo-015" width="256" height="256" loading="lazy">
+        <figcaption>demo-015</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-016.png" alt="avatar for demo-016" width="256" height="256" loading="lazy">
+        <figcaption>demo-016</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-017.png" alt="avatar for demo-017" width="256" height="256" loading="lazy">
+        <figcaption>demo-017</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-018.png" alt="avatar for demo-018" width="256" height="256" loading="lazy">
+        <figcaption>demo-018</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-019.png" alt="avatar for demo-019" width="256" height="256" loading="lazy">
+        <figcaption>demo-019</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-020.png" alt="avatar for demo-020" width="256" height="256" loading="lazy">
+        <figcaption>demo-020</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-021.png" alt="avatar for demo-021" width="256" height="256" loading="lazy">
+        <figcaption>demo-021</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-022.png" alt="avatar for demo-022" width="256" height="256" loading="lazy">
+        <figcaption>demo-022</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-023.png" alt="avatar for demo-023" width="256" height="256" loading="lazy">
+        <figcaption>demo-023</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-024.png" alt="avatar for demo-024" width="256" height="256" loading="lazy">
+        <figcaption>demo-024</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-025.png" alt="avatar for demo-025" width="256" height="256" loading="lazy">
+        <figcaption>demo-025</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-026.png" alt="avatar for demo-026" width="256" height="256" loading="lazy">
+        <figcaption>demo-026</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-027.png" alt="avatar for demo-027" width="256" height="256" loading="lazy">
+        <figcaption>demo-027</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-028.png" alt="avatar for demo-028" width="256" height="256" loading="lazy">
+        <figcaption>demo-028</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-029.png" alt="avatar for demo-029" width="256" height="256" loading="lazy">
+        <figcaption>demo-029</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-030.png" alt="avatar for demo-030" width="256" height="256" loading="lazy">
+        <figcaption>demo-030</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-031.png" alt="avatar for demo-031" width="256" height="256" loading="lazy">
+        <figcaption>demo-031</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-032.png" alt="avatar for demo-032" width="256" height="256" loading="lazy">
+        <figcaption>demo-032</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-033.png" alt="avatar for demo-033" width="256" height="256" loading="lazy">
+        <figcaption>demo-033</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-034.png" alt="avatar for demo-034" width="256" height="256" loading="lazy">
+        <figcaption>demo-034</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-035.png" alt="avatar for demo-035" width="256" height="256" loading="lazy">
+        <figcaption>demo-035</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-036.png" alt="avatar for demo-036" width="256" height="256" loading="lazy">
+        <figcaption>demo-036</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-037.png" alt="avatar for demo-037" width="256" height="256" loading="lazy">
+        <figcaption>demo-037</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-038.png" alt="avatar for demo-038" width="256" height="256" loading="lazy">
+        <figcaption>demo-038</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-039.png" alt="avatar for demo-039" width="256" height="256" loading="lazy">
+        <figcaption>demo-039</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-040.png" alt="avatar for demo-040" width="256" height="256" loading="lazy">
+        <figcaption>demo-040</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-041.png" alt="avatar for demo-041" width="256" height="256" loading="lazy">
+        <figcaption>demo-041</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-042.png" alt="avatar for demo-042" width="256" height="256" loading="lazy">
+        <figcaption>demo-042</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-043.png" alt="avatar for demo-043" width="256" height="256" loading="lazy">
+        <figcaption>demo-043</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-044.png" alt="avatar for demo-044" width="256" height="256" loading="lazy">
+        <figcaption>demo-044</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-045.png" alt="avatar for demo-045" width="256" height="256" loading="lazy">
+        <figcaption>demo-045</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-046.png" alt="avatar for demo-046" width="256" height="256" loading="lazy">
+        <figcaption>demo-046</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-047.png" alt="avatar for demo-047" width="256" height="256" loading="lazy">
+        <figcaption>demo-047</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-048.png" alt="avatar for demo-048" width="256" height="256" loading="lazy">
+        <figcaption>demo-048</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-049.png" alt="avatar for demo-049" width="256" height="256" loading="lazy">
+        <figcaption>demo-049</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-050.png" alt="avatar for demo-050" width="256" height="256" loading="lazy">
+        <figcaption>demo-050</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-051.png" alt="avatar for demo-051" width="256" height="256" loading="lazy">
+        <figcaption>demo-051</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-052.png" alt="avatar for demo-052" width="256" height="256" loading="lazy">
+        <figcaption>demo-052</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-053.png" alt="avatar for demo-053" width="256" height="256" loading="lazy">
+        <figcaption>demo-053</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-054.png" alt="avatar for demo-054" width="256" height="256" loading="lazy">
+        <figcaption>demo-054</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-055.png" alt="avatar for demo-055" width="256" height="256" loading="lazy">
+        <figcaption>demo-055</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-056.png" alt="avatar for demo-056" width="256" height="256" loading="lazy">
+        <figcaption>demo-056</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-057.png" alt="avatar for demo-057" width="256" height="256" loading="lazy">
+        <figcaption>demo-057</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-058.png" alt="avatar for demo-058" width="256" height="256" loading="lazy">
+        <figcaption>demo-058</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-059.png" alt="avatar for demo-059" width="256" height="256" loading="lazy">
+        <figcaption>demo-059</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-060.png" alt="avatar for demo-060" width="256" height="256" loading="lazy">
+        <figcaption>demo-060</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-061.png" alt="avatar for demo-061" width="256" height="256" loading="lazy">
+        <figcaption>demo-061</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-062.png" alt="avatar for demo-062" width="256" height="256" loading="lazy">
+        <figcaption>demo-062</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-063.png" alt="avatar for demo-063" width="256" height="256" loading="lazy">
+        <figcaption>demo-063</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-064.png" alt="avatar for demo-064" width="256" height="256" loading="lazy">
+        <figcaption>demo-064</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-065.png" alt="avatar for demo-065" width="256" height="256" loading="lazy">
+        <figcaption>demo-065</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-066.png" alt="avatar for demo-066" width="256" height="256" loading="lazy">
+        <figcaption>demo-066</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-067.png" alt="avatar for demo-067" width="256" height="256" loading="lazy">
+        <figcaption>demo-067</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-068.png" alt="avatar for demo-068" width="256" height="256" loading="lazy">
+        <figcaption>demo-068</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-069.png" alt="avatar for demo-069" width="256" height="256" loading="lazy">
+        <figcaption>demo-069</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-070.png" alt="avatar for demo-070" width="256" height="256" loading="lazy">
+        <figcaption>demo-070</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-071.png" alt="avatar for demo-071" width="256" height="256" loading="lazy">
+        <figcaption>demo-071</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-072.png" alt="avatar for demo-072" width="256" height="256" loading="lazy">
+        <figcaption>demo-072</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-073.png" alt="avatar for demo-073" width="256" height="256" loading="lazy">
+        <figcaption>demo-073</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-074.png" alt="avatar for demo-074" width="256" height="256" loading="lazy">
+        <figcaption>demo-074</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-075.png" alt="avatar for demo-075" width="256" height="256" loading="lazy">
+        <figcaption>demo-075</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-076.png" alt="avatar for demo-076" width="256" height="256" loading="lazy">
+        <figcaption>demo-076</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-077.png" alt="avatar for demo-077" width="256" height="256" loading="lazy">
+        <figcaption>demo-077</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-078.png" alt="avatar for demo-078" width="256" height="256" loading="lazy">
+        <figcaption>demo-078</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-079.png" alt="avatar for demo-079" width="256" height="256" loading="lazy">
+        <figcaption>demo-079</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-080.png" alt="avatar for demo-080" width="256" height="256" loading="lazy">
+        <figcaption>demo-080</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-081.png" alt="avatar for demo-081" width="256" height="256" loading="lazy">
+        <figcaption>demo-081</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-082.png" alt="avatar for demo-082" width="256" height="256" loading="lazy">
+        <figcaption>demo-082</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-083.png" alt="avatar for demo-083" width="256" height="256" loading="lazy">
+        <figcaption>demo-083</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-084.png" alt="avatar for demo-084" width="256" height="256" loading="lazy">
+        <figcaption>demo-084</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-085.png" alt="avatar for demo-085" width="256" height="256" loading="lazy">
+        <figcaption>demo-085</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-086.png" alt="avatar for demo-086" width="256" height="256" loading="lazy">
+        <figcaption>demo-086</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-087.png" alt="avatar for demo-087" width="256" height="256" loading="lazy">
+        <figcaption>demo-087</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-088.png" alt="avatar for demo-088" width="256" height="256" loading="lazy">
+        <figcaption>demo-088</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-089.png" alt="avatar for demo-089" width="256" height="256" loading="lazy">
+        <figcaption>demo-089</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-090.png" alt="avatar for demo-090" width="256" height="256" loading="lazy">
+        <figcaption>demo-090</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-091.png" alt="avatar for demo-091" width="256" height="256" loading="lazy">
+        <figcaption>demo-091</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-092.png" alt="avatar for demo-092" width="256" height="256" loading="lazy">
+        <figcaption>demo-092</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-093.png" alt="avatar for demo-093" width="256" height="256" loading="lazy">
+        <figcaption>demo-093</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-094.png" alt="avatar for demo-094" width="256" height="256" loading="lazy">
+        <figcaption>demo-094</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-095.png" alt="avatar for demo-095" width="256" height="256" loading="lazy">
+        <figcaption>demo-095</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-096.png" alt="avatar for demo-096" width="256" height="256" loading="lazy">
+        <figcaption>demo-096</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-097.png" alt="avatar for demo-097" width="256" height="256" loading="lazy">
+        <figcaption>demo-097</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-098.png" alt="avatar for demo-098" width="256" height="256" loading="lazy">
+        <figcaption>demo-098</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-099.png" alt="avatar for demo-099" width="256" height="256" loading="lazy">
+        <figcaption>demo-099</figcaption>
+      </figure>
+      <figure>
+        <img src="gallery/demo-100.png" alt="avatar for demo-100" width="256" height="256" loading="lazy">
+        <figcaption>demo-100</figcaption>
+      </figure>
+</div>
+
+<script type="module" src="app.mjs"></script>
+<footer>MIT licensed · 100 avatars at 256×256</footer>
+</body>
+</html>
