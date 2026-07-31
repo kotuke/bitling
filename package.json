@@ -1,0 +1,32 @@
+{
+  "name": "bitling",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Deterministic, zero-dependency pixel avatar identicons: a shared robot with a personal color sigil",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    "types": "./src/avatar.d.ts",
+    "import": "./src/avatar.mjs"
+  },
+  "types": "./src/avatar.d.ts",
+  "bin": {
+    "bitling": "./src/cli.mjs"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test",
+    "benchmark": "node benchmark.mjs",
+    "collision": "node collision-check.mjs",
+    "sample": "node examples/generate-samples.mjs",
+    "preview": "node examples/contact-sheet.mjs",
+    "lint": "eslint .",
+    "docs": "node examples/build-docs.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^9.39.5"
+  }
+}
