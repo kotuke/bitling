@@ -8,7 +8,7 @@ import { generateAvatarPng } from "../src/avatar.mjs";
 const SECRET = process.env.AVATAR_SECRET ?? "contact-sheet-secret-not-for-production";
 const CELL = 160;
 const COLUMNS = 8;
-const ROWS = 3;
+const ROWS = 4;
 
 function decodePng(png) {
   const width = png.readUInt32BE(16);
