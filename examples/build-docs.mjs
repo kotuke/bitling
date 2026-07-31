@@ -31,6 +31,7 @@ for (const [from, to] of [
   await writeFile(join(root, "lib", to), flatten(await readFile(from, "utf8")));
 }
 await copyFile(join(here, "demo-app.mjs"), join(root, "app.mjs"));
+await copyFile(join(here, "..", "llms.txt"), join(root, "llms.txt"));
 
 const cards = [];
 for (let index = 1; index <= COUNT; index += 1) {

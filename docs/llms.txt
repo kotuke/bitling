@@ -1,0 +1,89 @@
+# Bitling
+
+> Deterministic pixel avatar identicons for Node.js and browsers: one white
+> robot shared by everyone and a personal coloured sigil above it. The same
+> `userId` plus the same secret always produce the same avatar. Zero runtime
+> dependencies, SVG and PNG output.
+
+Install: `npm install @kotuke/bitling` (Node.js 20+, ESM only).
+
+## Core API
+
+```js
+import {
+  createAvatarDescriptor,
+  generateAvatarPng,
+  generateAvatarSvg,
+  renderAvatarPng,
+  renderAvatarSvg,
+  avatarEtag,
+  normalizeSize,
+  PALETTE,
+  AVATAR_VERSION,   // "v1"
+} from "@kotuke/bitling";
+
+// One-shot helpers
+const svg = generateAvatarSvg(userId, { secret, size, title }); // string
+const png = generateAvatarPng(userId, { secret, size });        // Buffer
+
+// Reuse one seed for both formats
+const descriptor = createAvatarDescriptor(userId, { secret });
+renderAvatarSvg(descriptor, { size, title });
+renderAvatarPng(descriptor, { size });
+```
+
+Options:
+
+- `secret` — required string, at least 16 characters. Keep it on the backend.
+- `size` — integer 32…2048, default 256. Out of range throws `RangeError`.
+- `title` — SVG accessible title, escaped automatically.
+
+Errors: empty `userId` or non-string throws `TypeError`; a short secret or a bad
+size throws `RangeError`. Nothing is written before validation.
+
+## Browser entry point
+
+```js
+import { generateAvatarSvg } from "@kotuke/bitling/browser";
+```
+
+Same avatars byte for byte, seeded by a bundled SHA-256 instead of
+`node:crypto`. SVG only — PNG needs zlib and stays Node-side.
+
+## HTTP server
+
+```js
+import { createAvatarServer } from "@kotuke/bitling/server";
+const server = createAvatarServer({ secret, maxCacheEntries: 512 });
+```
+
+Routes: `GET /avatars/v1/<urlencoded-id>.(svg|png)?size=512` and `GET /health`.
+Responses carry `ETag`, `Cache-Control: immutable` and CORS headers.
+
+## Descriptor shape
+
+```js
+{ version, fingerprint, accent, pixels: [[column, row], …] }
+```
+
+`pixels` is the personal sigil only — the robot and the grid are shared by every
+avatar. `fingerprint` is the first 16 bytes of the HMAC as lowercase hex; the raw
+`userId` never appears in the output.
+
+## Behaviour worth knowing
+
+- Determinism key: `AVATAR_VERSION + AVATAR_SECRET + userId`. Changing the secret
+  rotates every avatar; bump `AVATAR_VERSION` and serve `/avatars/v2/...` when the
+  algorithm changes.
+- Sigils are bilaterally symmetric, connected, never overlap the robot.
+- Visual collisions are possible in principle: 11 repeats per 100,000 users on
+  the reference secret.
+- Throughput on the build machine: SVG ≈ 0.09 ms, PNG ≈ 0.6 ms per avatar at
+  256×256.
+
+## Links
+
+- Source: https://github.com/kotuke/bitling
+- Live demo and gallery: https://kotuke.github.io/bitling/
+- Changelog: https://github.com/kotuke/bitling/blob/main/CHANGELOG.md
+- Sibling project (the whole figure is personal, two styles): https://github.com/kotuke/bitizen

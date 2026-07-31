@@ -1,6 +1,7 @@
 # Bitling
 
 [![test](https://github.com/kotuke/bitling/actions/workflows/test.yml/badge.svg)](https://github.com/kotuke/bitling/actions/workflows/test.yml)
+[![npm](https://img.shields.io/npm/v/@kotuke%2Fbitling?color=cb3837&logo=npm)](https://www.npmjs.com/package/@kotuke/bitling)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Deterministic pixel avatars in a bot-crew style: a black field edge to edge, a
@@ -25,6 +26,16 @@ calls, no database, no runtime dependencies. The same `userId` with the same
 - `ETag`, `Cache-Control: immutable`, CORS and an in-memory LRU cache;
 - CLI and TypeScript declarations;
 - zero runtime dependencies.
+
+## Install
+
+```bash
+npm install @kotuke/bitling
+```
+
+One style: a shared robot with a personal sigil above it. Node.js 20 or newer; the package has no runtime
+dependencies. A browser-only entry point is available as
+`@kotuke/bitling/browser` — it renders SVG without `node:crypto` or `zlib`.
 
 ## Quick start
 
@@ -65,7 +76,7 @@ a URL.
 import {
   generateAvatarPng,
   generateAvatarSvg,
-} from "./src/avatar.mjs";
+} from "@kotuke/bitling";
 
 const options = {
   secret: process.env.AVATAR_SECRET,
@@ -83,7 +94,7 @@ import {
   createAvatarDescriptor,
   renderAvatarPng,
   renderAvatarSvg,
-} from "./src/avatar.mjs";
+} from "@kotuke/bitling";
 
 const avatar = createAvatarDescriptor("user-123", {
   secret: process.env.AVATAR_SECRET,
@@ -162,6 +173,13 @@ identifier, for example `${user.id}:${user.avatarVariant}`.
 
 [bitizen](https://github.com/kotuke/bitizen) continues this project: the sigil is
 gone and the figure itself became personal, in two styles — `plain` and `rich`.
+
+## Using with an AI assistant
+
+[`llms.txt`](llms.txt) is a compact, machine-readable summary of the whole API —
+options, error behaviour, descriptor shape and the determinism contract. Point an
+assistant at `https://kotuke.github.io/bitling/llms.txt` (or paste the file) and it
+has everything needed to wire the library up correctly without reading the source.
 
 ## Contributing
 
